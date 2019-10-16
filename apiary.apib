@@ -1,0 +1,865 @@
+FORMAT: 1A
+HOST: https://push.notifica.re/
+
+# Notificare SDK API
+This is an official Notificare API that enables access to certain features of our platform specially designed to be used in native mobile SDKs. Its sole purpose is to provide access to strategic endpoints via a mobile app.
+The API endpoints below are all authenticated with `applicationKey` and `applicationSecret`, if you do not have these yet, you should grab them from your app in Notificare Dashboard under the section Settings > App Keys.
+Use Basic HTTP Authentication where `applicationKey` should be your username and `applicationSecret` your password.
+
+For technical support please [contact us](http://notifica.re/contact).
+
+# Group Application
+All methods to handle application related operations.
+
+## Application [/application/info]
+### Retrieve information about the application [GET]
+
++ Response 200 (application/json)
+
+    {
+        "application": {
+            "_id": "xxx",
+            "name": "Notificare App",
+            "category": "Business",
+            "appStoreId": null,
+            "androidPackageName": null,
+            "services": {
+                "richPush": true,
+                "locationServices": true,
+                "apns": true,
+                "gcm": true,
+                "websockets": true,
+                "triggers": true,
+                "passbook": true,
+                "inAppPurchase": true,
+                "oauth2": true,
+                "screens": true,
+                "reports": true,
+                "appsOnDemand": true,
+                "liveApi": true,
+                "automation": true,
+                "websitePush": true,
+                "inbox": true,
+                "storage": true
+            },
+            "inboxConfig": {
+                "useInbox": true,
+                "autoBadge": true
+            },
+            "userDataFields": [],
+            "actionCategories": [],
+            "regionConfig": {
+                "proximityUUID": null
+            },
+            "websitePushConfig": {
+                "icon": "/website-push/xxx/xxx",
+                "allowedDomains": ["http://mydomain.com"],
+                "urlFormatString": "http://mydomain.com/?notification=%@",
+                "info": {
+                    "subject": {
+                        "C": "US",
+                        "O": "Notificare B.V.",
+                        "OU": "xxxx",
+                        "CN": "Website Push ID: web.com.mydomain",
+                        "UID": "web.com.mydomain"
+                    }
+                }
+            }
+        }
+    }
+
+# Group Asset
+All methods to handle asset groups related operations.
+
+## Asset Groups [/asset/forgroup/{name}]
+### Retrieve a group of assets by name [GET]
+
++ Parameters
+
+    + name (required, string, `MY_GROUP_NAME`)...The name of the asset group.
+
+
++ Response 200 (application/json)
+
+        {
+            "assets": [{
+                "title": "My Asset Group",
+                "key": "xxx/xxx",
+                "description": "",
+                "_id": "xxx",
+                "button": {
+                    "label": null,
+                    "action": null
+                },
+                "metaData": {
+                    "contentLength": 501,
+                    "contentType": "application/json",
+                    "originalFileName": "myjsonfile.json"
+                }
+            }]
+        }
+
+## Asset File [/asset/file/{key}]
+### Retrieve a specific asset file [GET]
+
++ Parameters
+
+    + key (required, string, `3d99d18148e6f3dbcf4ff891c9a026463b0311feccc7b9d0c8c79fee9b4dde19/7e6166684680598ff63894fbc837db244a1d98ea02793b414845a23f876f31ef`)...The key identifier for an asset file.
+
+
++ Response 200 (image/png)
+
+
+
+# Group Beacon
+All methods to handle beacon related operations.
+
+## Beacons For Region [/beacon/forregion/{region}]
+### Get all beacons for a certain region [GET]
+
++ Parameters
+
+    + region (required, string, `5245bc5b3e66a3b01f0024d4`)...The id of an active region.
+
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+                "beacons":[{
+                                   "_id":"xxx",
+                                   "notification":"xxx",
+                                   "name": "My 1st Beacon",
+                                   "major": "654321",
+                                   "minor": "123456",
+                                   "proximity": "immediate"
+        },
+        {
+                                   "_id":"xxx",
+                                   "notification":"xxx",
+                                   "name": "My 2nd Beacon",
+                                   "major": "654321",
+                                   "minor": "123456",
+                                   "proximity": "immediate"
+        }]
+
+## Beacon [/beacon/forregion/{region}/{minor}]
+### Get a beacon by its region and minor [GET]
+
++ Parameters
+
+    + region (required, string, `5245bc5b3e66a3b01f0024d4`)...The id of an active region.
+    + minor (required, string, `123456`)...The minor of a beacon.
+
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+                "beacon":{
+                                   "_id":"xxx",
+                                   "notification":"xxx",
+                                   "name": "My 1st Beacon",
+                                   "major": "654321",
+                                   "minor": "123456",
+                                   "proximity": "immediate"
+                }
+        }
+
+# Group Device
+All methods to handle device related operations.
+
+## New Device [/device]
+### Register a device [POST]
+
++ Parameters
+
+    + appVersion (required, string, `1.0`)...The version of your application.
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+    + deviceString (required, string, `MacIntel`)...An identifier of the device's model.
+    + language (required, string, `en-GB`)...An ISO 639-1 language code that identifies the language in the device.
+    + oldDeviceID (optional, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The old device identifier in case a new one is assigned, this makes sure data in the old device transits to the new one.
+    + osVersion (required, string, `10.12.3`)...The operating system version of the device.
+    + platform (required, string, `Chrome`)...An object containing three previously created message Ids for each proximity level.
+    + sdkVersion (required, number, `1.9.0`)...The version of the SDK used. This allows the platform to understand what functionalities are available.
+    + timeZoneOffset (required, number, `1`)...The timezone offset of the device.
+    + transport (required, string, `GCM`)...The identifier of the push channel allowed in the device.
+    + userID (optional, string, `1234567890`)...The unique identifier that you can use to send private messages to this user.
+    + userName (optional, string, `John Doe`)...A name for the user of the device.
+
+
++ Request (application/json)
+
+        {
+            "appVersion": "1.0"
+            "deviceID": "xxxxx"
+            "deviceString": "MacIntel"
+            "language": "en-GB"
+            "oldDeviceID": null
+            "osVersion": "10.12.3"
+            "platform": "Chrome"
+            "sdkVersion": "1.9.3"
+            "timeZoneOffset": 1
+            "transport": "GCM"
+            "userID": null
+            "userName": null
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+## Update Device [/device/{deviceID}]
+### Update an existing device [PUT]
+
++ Parameters
+
+    + appVersion (required, string, `1.0`)...The version of your application.
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+    + deviceString (required, string, `MacIntel`)...An identifier of the device's model.
+    + language (required, string, `en-GB`)...An ISO 639-1 language code that identifies the language in the device.
+    + oldDeviceID (optional, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The old device identifier in case a new one is assigned, this makes sure data in the old device transits to the new one.
+    + osVersion (required, string, `10.12.3`)...The operating system version of the device.
+    + platform (required, string, `Chrome`)...An object containing three previously created message Ids for each proximity level.
+    + sdkVersion (required, number, `1.9.0`)...The version of the SDK used. This allows the platform to understand what functionalities are available.
+    + timeZoneOffset (required, number, `1`)...The timezone offset of the device.
+    + transport (required, string, `GCM`)...The identifier of the push channel allowed in the device.
+    + userID (optional, string, `1234567890`)...The unique identifier that you can use to send private messages to this user.
+    + userName (optional, string, `John Doe`)...A name for the user of the device.
+
+
++ Request (application/json)
+
+        {
+            "appVersion": "1.0"
+            "deviceID": "xxxxx"
+            "deviceString": "MacIntel"
+            "language": "en-GB"
+            "oldDeviceID": null
+            "osVersion": "10.12.3"
+            "platform": "Chrome"
+            "sdkVersion": "1.9.3"
+            "timeZoneOffset": 1
+            "transport": "GCM"
+            "userID": null
+            "userName": null
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+
+## Device Tags [/device/{deviceID}/tags]
+### Get all the tags for a device [GET]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+                "tags":[
+                       "one_tag",
+                       "two_tags"
+                ]
+        }
+
+## Add Device Tag [/device/{deviceID}/addtag]
+### Add a tag to a device [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Request (application/json)
+
+        {
+            "tag":"one_tag"
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+## Add Device Tags [/device/{deviceID}/addtags]
+### Add one or more tags to a device [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Request (application/json)
+
+        {
+             "tags":[
+                       "one_tag",
+                       "two_tags"
+                    ]
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+## Remove Device Tag [/device/{deviceID}/removetag]
+### Remove a tag from a device [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Request (application/json)
+
+        {
+            "tag":"one_tag"
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+## Remove Device Tags [/device/{deviceID}/removetags]
+### Remove one or more tags from a device [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Request (application/json)
+
+        {
+             "tags":[
+                       "one_tag",
+                       "two_tags"
+                    ]
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+## Clear All Device Tags [/device/{deviceID}/cleartags]
+### Clear all tags from a device [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+
+## Device DnD [/device/{deviceID}/dnd]
+### Get the device's Do Not Disturb period [GET]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+                "dnd": {
+                            "start": "01:00",
+                            "end": "07:00"
+                        }
+        }
+
+
+## Update Device DnD [/device/{deviceID}/dnd]
+### Update the device's Do Not Disturb period [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Request (application/json)
+
+
+        {
+                "start": "01:00",
+                "end": "07:00"
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+## Clear Device DnD [/device/{deviceID}/cleardnd]
+### Clear the device's Do Not Disturb period [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+
+## Device User Data [/device/{deviceID}/userdata]
+### Get the device's User Data [GET]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+                "userData": {
+                            "firstName": "John",
+                            "lastName": "Doe"
+                        }
+        }
+
+## Update Device User Data [/device/{deviceID}/dnd]
+### Update the device's User Data [PUT]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Request (application/json)
+
+
+        {
+               "firstName": "John",
+                "lastName": "Doe"
+        }
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "device": {
+                "message": "device updated"
+            }
+        }
+
+# Group Event
+All methods to handle event related operations.
+
+## New Event [/event]
+### Register an event [POST]
+
+## Event Types:
+| type | description |
+|:---------:|----------------------------------|
+| re.notifica.event.application.Install | Stored whenever a new device installs the app. |
+| re.notifica.event.application.Uninstall | Stored whenever an app was removed from the device, as reported by APNS or GCM feedback. |
+| re.notifica.event.application.Open | Stored whenever the application becomes active. |
+| re.notifica.event.application.Close | Stored whenever the application goes to background. |
+| re.notifica.event.notification.Influenced | Stored whenever a notification when app is not active. |
+| re.notifica.event.notification.Receive | Stored whenever a notification arrives. |
+| re.notifica.event.notification.Open | Stored whenever a notification is open. |
+| re.notifica.event.region.Session | Stored whenever a user enters and leaves a region. |
+| re.notifica.event.beacon.Session | Stored whenever a user is on the proximity of a beacon. |
+| re.notifica.event.pass.Add | Stored whenever a pass is added to a device's wallet. |
+| re.notifica.event.pass.Remove | Stored whenever a pass is removed from a device's wallet. |
+| re.notifica.event.pass.Redeem | Stored whenever a pass is redeemed. |
+| re.notifica.event.product.Buy | Stored whenever a purchase is done. |
+| re.notifica.event.product.Buy.{store} | Stored whenever a purchase is done, where store is AppStore or GooglePlay. |
+| re.notifica.event.product.Buy.{store}.{identifier} | Stored whenever a purchase is done, where store is AppStore or GooglePlay. |
+| re.notifica.event.custom.{name} | Any other event stored by your application. |
+
+
++ Parameters
+
+    + sessionID (required, string, `1627576d6d6d66d676627`)...The session identifier that allows to cross reference events.
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device corresponding to the APNS, FCM or Webpush token.
+    + userID (optional, string, `1234567890`)...The unique identifier that you can use to send messages to this device.
+    + type (required, string, `re.notifica.event.application.Open`)...A reverse domain style namespace that identifies the type of event.
+    + notification (optional, string, `1627576d6d6d66d676627`)...The notification identifier when applicable.
+    + data (optional, object, `{"campaignID":"12526dd66d666d66772d"}`)...A free form object that allows you to store any type of data for an event.
+
+
++ Request (application/json)
+
+        {
+            "sessionID": "1.0"
+            "deviceID": "xxxxx"
+            "type": "re.notifica.event.application.Open"
+            "notification": null
+            "data": null
+            "userID": null
+        }
+
++ Response 202 (application/json; charset=utf-8)
+
+        {
+
+        }
+
+# Group Notification
+All methods to handle notification related operations.
+
+## Notification [/notification/{id}]
+### Get a specific notification [GET]
+
++ Parameters
+
+    + id (required, string, `1627576d6d6d66d676627`)...The notification's unique identifier.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "notification": {
+                                "_id": "566acc80cbe343d7136ec9bf",
+                                "application": "5489b42ff23e5815132b492a",
+                                "account": "548985629f634350713ec9ee",
+                                "userID": null,
+                                "deviceID": null,
+                                "ttl": null,
+                                "message": "Ready for beers?",
+                                "sound": "default",
+                                "badge": null,
+                                "action_category": null,
+                                "actions": [{
+                                    "type": "re.notifica.action.Callback",
+                                    "label": "yes",
+                                    "target": "",
+                                    "id": "566acc80cbe343d7136ec9c1",
+                                    "rules": [],
+                                    "camera": false,
+                                    "keyboard": false
+                                }, {
+                                    "type": "re.notifica.action.Callback",
+                                    "label": "no",
+                                    "target": "",
+                                    "id": "566acc80cbe343d7136ec9c0",
+                                    "rules": [],
+                                    "camera": false,
+                                    "keyboard": false
+                                }],
+                                "rules": [],
+                                "attachments": [],
+                                "location": {
+                                    "type": "Point",
+                                    "coordinates": [4.422683699999993, 51.91263190000001],
+                                    "distance": 0.6928425313346089
+                                },
+                                "content": [],
+                                "scheduled": false,
+                                "triggered": false,
+                                "archived": false,
+                                "cleared": false,
+                                "showInList": true,
+                                "scope": "application",
+                                "type": "re.notifica.notification.Alert",
+                                "time": "2015-12-11T13:15:44.298Z",
+                                "tags": [],
+                                "segments": [],
+                            }
+        }
+
+
+## Inbox [/notification/inbox/fordevice/{deviceID}{?since,limit,skip}]
+### Get a specific device's inbox [GET]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+    + since (optional, date, `2015-12-11T13:15:44.298Z`)...A date that we will use to retrieve items. When provided we will only retrieve items since that date.
+    + limit = `100` (optional, number, `10`)...The maximum number of results to retrieve.
+    + skip = `0` (optional, number, `0`)...The number of results to skip.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "inboxItems": [
+                            {
+                                "id": "566acc80cbe343d7136ec9bf",
+                                "notification": "566acc80cbe343d7136ec9bf",
+                                "title": null,
+                                "subtitle": null,
+                                "message": "Ready for beers?",
+                                "opened": false,
+                                "extra": null,
+                                "attachments": [],
+                                "time": "2015-12-11T13:15:44.298Z"
+                            }
+                          ],
+            "count": 1,
+            "unread"": 1
+        }
+
+### Clear all items in a specific device's inbox [DELETE]
+
++ Parameters
+
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "message": "cleared inbox",
+            "count": 0
+        }
+
+## Delete Inbox Item [/notification/inbox/{id}]
+### Delete inbox item in a specific device's inbox [DELETE]
+
++ Parameters
+
+    + id (required, string, `566acc80cbe343d7136ec9bf`)...The unique identifier for the inbox item.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "message": "inbox item removed"
+        }
+
+# Group Pass
+All methods to handle pass related operations.
+
+
+## Pass By Serial [/pass/forserial/{serial}]
+### Get a pass with a specific serial [GET]
+
++ Parameters
+
+    + serial = `100` (required, string, `402ab90b-65b5-4b4f-91fa-9823b2972f85`)...The pass serial number.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+             "pass": {
+                               "_id":"5501894253058ca5269a9928",
+                               "application":"5354f0bb3fa544452ff4c7c0",
+                               "passbook":"54e135049c2cad772e7c0de0",
+                               "barcode":"402ab90b-65b5-4b4f-91fa-9823b2972f85",
+                               "serial":"402ab90b-65b5-4b4f-91fa-9823b2972f85",
+                               "data":{
+                                        "backgroundColor":"rgb(0,0,0)",
+                                        "foregroundColor":"rgb(255,255,255)",
+                                        "suppressStripShine":false,
+                                        "labelColor":"rgb(255,255,255)",
+                                        "logoText":"My Company",
+                                        "description":"coupon example",
+                                        "auxiliaryFields":[],
+                                        "headerFields":[],
+                                        "primaryFields":[
+                                                          {
+                                                             "string":true,
+                                                             "key":"discount",
+                                                             "label":"discount",
+                                                             "textAlignment": "PKTextAlignmentLeft",
+                                                             "value": "20% off"
+                                                           }
+                                                          ],
+                                        "secondaryFields":[
+                                                            {
+                                                              "string":true,
+                                                              "key":"expires",
+                                                              "label":"expires",
+                                                              "textAlignment":"PKTextAlignmentLeft",
+                                                              "value":"31-12-2015"
+                                                            }
+                                                          ],
+                                        "backFields":[],
+                                        "transitType":null,
+                                        "barcode":{
+                                                     "format":"PKBarcodeFormatQR",
+                                                     "messageEncoding":"iso-8859-1"
+                                                  },
+                                        "background":null,
+                                        "thumbnail":null,
+                                        "logo":"https://push.notifica.re/upload/passbook/3d99d18148e6f3dbcf4ff891c9a026463b0311feccc7b9d0c8c79fee9b4dde19/7e6166684680598ff63894fbc837db244a1d98ea02793b414845a23f876f31ef",
+                                        "icon":"https://push.notifica.re/upload/passbook/3d99d18148e6f3dbcf4ff891c9a026463b0311feccc7b9d0c8c79fee9b4dde19/aa2a7d561c6ba9f99f169a38a92dc0ac98d5f5a6cec0b4bea447e62e70e0ea96",
+                                        "strip":"https://push.notifica.re/upload/passbook/3d99d18148e6f3dbcf4ff891c9a026463b0311feccc7b9d0c8c79fee9b4dde19/827a04cf2e5f8653f544432a72fc217409c57af0f0068fd0696f374e183e6b14",
+                                        "footer":null
+
+                               }
+                             }
+        }
+
+## Pass By Barcode [/pass/forbarcode/{barcode}]
+### Get a pass with a specific barcode [GET]
+
++ Parameters
+
+    + barcode = `100` (required, string, `ABC-123456789`)...The pass barcode.
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+             "pass": {
+                               "_id":"5501894253058ca5269a9928",
+                               "application":"5354f0bb3fa544452ff4c7c0",
+                               "passbook":"54e135049c2cad772e7c0de0",
+                               "barcode":"ABC-123456789",
+                               "serial":"402ab90b-65b5-4b4f-91fa-9823b2972f85",
+                               "data":{
+                                        "backgroundColor":"rgb(0,0,0)",
+                                        "foregroundColor":"rgb(255,255,255)",
+                                        "suppressStripShine":false,
+                                        "labelColor":"rgb(255,255,255)",
+                                        "logoText":"My Company",
+                                        "description":"coupon example",
+                                        "auxiliaryFields":[],
+                                        "headerFields":[],
+                                        "primaryFields":[
+                                                          {
+                                                             "string":true,
+                                                             "key":"discount",
+                                                             "label":"discount",
+                                                             "textAlignment": "PKTextAlignmentLeft",
+                                                             "value": "20% off"
+                                                           }
+                                                          ],
+                                        "secondaryFields":[
+                                                            {
+                                                              "string":true,
+                                                              "key":"expires",
+                                                              "label":"expires",
+                                                              "textAlignment":"PKTextAlignmentLeft",
+                                                              "value":"31-12-2015"
+                                                            }
+                                                          ],
+                                        "backFields":[],
+                                        "transitType":null,
+                                        "barcode":{
+                                                     "format":"PKBarcodeFormatQR",
+                                                     "messageEncoding":"iso-8859-1"
+                                                  },
+                                        "background":null,
+                                        "thumbnail":null,
+                                        "logo":"https://push.notifica.re/upload/passbook/3d99d18148e6f3dbcf4ff891c9a026463b0311feccc7b9d0c8c79fee9b4dde19/7e6166684680598ff63894fbc837db244a1d98ea02793b414845a23f876f31ef",
+                                        "icon":"https://push.notifica.re/upload/passbook/3d99d18148e6f3dbcf4ff891c9a026463b0311feccc7b9d0c8c79fee9b4dde19/aa2a7d561c6ba9f99f169a38a92dc0ac98d5f5a6cec0b4bea447e62e70e0ea96",
+                                        "strip":"https://push.notifica.re/upload/passbook/3d99d18148e6f3dbcf4ff891c9a026463b0311feccc7b9d0c8c79fee9b4dde19/827a04cf2e5f8653f544432a72fc217409c57af0f0068fd0696f374e183e6b14",
+                                        "footer":null
+
+                               }
+                             }
+        }
+
+# Group Region
+All methods to handle region related operations.
+
+
+## Regions [/region{?limit,skip}]
+### Get all regions for an application [GET]
+
++ Parameters
+
+    + limit = `100` (optional, number, `10`)...The maximum number of results to retrieve.
+
+    + skip = `0` (optional, number, `0`)...The number of results to skip
+
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+                "regions":[
+                            {
+                                  "_id":"5245bc5b3e66a3b01f0024d4",
+                                  "name": "My Region",
+                                  "geometry": {
+                                               "type": "Point",
+                                               "coordinates": [4.2345,5.6789]
+                                  },
+                                  "major": "123456",
+                                  "timezone": "Europe/Amsterdam"
+                            }
+                ]
+        }
+
+
+# Group Reply
+All methods to handle replies related operations.
+
+
+## New Reply [/reply]
+### Register a reply [POST]
+
+
++ Parameters
+
+    + notification (required, string, `123eee456ddd789dddd0`)...The unique identifier of a notification.
+    + label (required, string, `Yes`)...The label of the action which executed the reply.
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device corresponding to the APNS, FCM or Webpush token.
+    + userID (optional, string, `1234567890`)...The unique identifier that you can use to send messages to this device.
+    + data (optional, object, `{"message": "some text provided by the user"}`)...Arbitrary data to be stored for this reply. Currently our platform can handle `message` (text provided by the user) and `media` (URL of a media file uploaded to Notificare)
+
+
++ Request (application/json)
+
+        {
+            "notification": "xxx",
+            "label": "Yes",
+            "deviceID": "xxx",
+            "userID": null,
+        }
+
++ Response 202 (application/json; charset=utf-8)
+
+        {
+
+        }
+
+
+# Group Trigger
+All methods to handle trigger related operations.
+
+
+## New Trigger [/trigger/{type}]
+### Register a trigger [POST]
+
++ Parameters
+
+    + trigger (required, string, `re.notifica.trigger.region.Enter`)...The type of trigger being executed.
+    + region (required, string, `123eee456ddd789dddd0`)...The unique identifier of a region.
+    + deviceID (required, string, `APA91bEpai_9PbfvVie3xvVnM2VXZEjQ1ZZIFiRzXf`)...The unique identifier for your device corresponding to the APNS, FCM or Webpush token.
+
++ Request (application/json)
+
+        {
+            "region": "xxx",
+            "deviceID": "xxx"
+        }
+
++ Response 201 (application/json; charset=utf-8)
+
+        {
+           "triggers": {
+                         "id": "123eee456ddd789dddd0"
+           }
+        }
